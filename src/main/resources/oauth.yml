@@ -1,0 +1,14 @@
+auth:
+  vendors:
+    kakao:
+      grant_type: authorization_code
+      access_token_api_url : https://kauth.kakao.com/oauth/token
+      user_info_api_url: https://kapi.kakao.com/v2/user/me
+      client_id: ${KAKAO_CLIENT_ID}
+      client_secret: ${KAKAO_CLIENT_SECRET}
+      redirect_uri : ${KAKAO_REDIRECT_URI}
+      login_form_url: ${KAKAO_LOGIN_FORM_URL}
+
+user-jwt:
+  issuer: ${JWT_ISSUER}
+  secret_key: ${JWT_SECRET_KEY}

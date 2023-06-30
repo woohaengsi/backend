@@ -40,6 +40,7 @@ public class Member extends BaseEntity {
     private String emailAddress;
     private String profileImageUrl;
     private String refreshToken;
+    private Long currentQuestionNumber;
 
     @Builder
     private Member(ResourceServer resourceServer, String resourceServerId, String nickname,
@@ -50,6 +51,7 @@ public class Member extends BaseEntity {
         this.emailAddress = emailAddress;
         this.profileImageUrl = profileImageUrl;
         this.refreshToken = refreshToken;
+        this.currentQuestionNumber = 1L;
     }
 
     public static Member of(ResourceServer resourceServer, String resourceServerId, String nickname,
@@ -65,5 +67,9 @@ public class Member extends BaseEntity {
 
     public void updateRefreshToken(String newRefreshToken) {
         this.refreshToken = newRefreshToken;
+    }
+
+    public void increaseCurrentQuestionNumber() {
+        this.currentQuestionNumber++;
     }
 }

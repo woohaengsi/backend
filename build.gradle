@@ -1,3 +1,9 @@
+buildscript {
+	ext {
+		springCloudVersion = '2021.0.3'
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.13'
@@ -10,6 +16,12 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = '17'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
 
 configurations {
@@ -31,6 +43,13 @@ dependencies {
 	// spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+	// feign client
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// JWT
+	implementation 'com.auth0:java-jwt:4.3.0'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'

@@ -10,10 +10,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohaengsi.qnadiary.answer.domain.Answer;
 import woohaengsi.qnadiary.auth.oauth.type.ResourceServer;
+import woohaengsi.qnadiary.bloomedflower.domain.BloomedFlower;
 import woohaengsi.qnadiary.common.BaseEntity;
 
 @Getter
@@ -28,6 +30,9 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", orphanRemoval = true)
     private final List<Answer> answers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", orphanRemoval = true)
+    private final List<BloomedFlower> bloomedFlowers = new ArrayList<>();
+
     @Enumerated(value = EnumType.STRING)
     private ResourceServer resourceServer;
     private String resourceServerId;
@@ -36,7 +41,8 @@ public class Member extends BaseEntity {
     private String profileImageUrl;
     private String refreshToken;
 
-    public Member(ResourceServer resourceServer, String resourceServerId, String nickname,
+    @Builder
+    private Member(ResourceServer resourceServer, String resourceServerId, String nickname,
         String emailAddress, String profileImageUrl, String refreshToken) {
         this.resourceServer = resourceServer;
         this.resourceServerId = resourceServerId;
@@ -44,5 +50,20 @@ public class Member extends BaseEntity {
         this.emailAddress = emailAddress;
         this.profileImageUrl = profileImageUrl;
         this.refreshToken = refreshToken;
+    }
+
+    public static Member of(ResourceServer resourceServer, String resourceServerId, String nickname,
+        String emailAddress, String profileImageUrl) {
+        return Member.builder()
+            .resourceServer(resourceServer)
+            .resourceServerId(resourceServerId)
+            .nickname(nickname)
+            .emailAddress(emailAddress)
+            .profileImageUrl(profileImageUrl)
+            .build();
+    }
+
+    public void updateRefreshToken(String newRefreshToken) {
+        this.refreshToken = newRefreshToken;
     }
 }

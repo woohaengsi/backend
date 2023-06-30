@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import woohaengsi.qnadiary.DatabaseCleanup;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
 import woohaengsi.qnadiary.auth.oauth.type.ResourceServer;
@@ -22,6 +23,8 @@ import woohaengsi.qnadiary.question.repository.QuestionRepository;
 class AnswerServiceTest {
 
     @Autowired
+    DatabaseCleanup databaseCleanup;
+    @Autowired
     AnswerService answerService;
     @Autowired
     AnswerRepository answerRepository;
@@ -32,7 +35,8 @@ class AnswerServiceTest {
 
     @AfterEach
     void tearDown() {
-        answerRepository.deleteAllInBatch();
+        databaseCleanup.afterPropertiesSet();
+        databaseCleanup.execute();
     }
 
     @Test

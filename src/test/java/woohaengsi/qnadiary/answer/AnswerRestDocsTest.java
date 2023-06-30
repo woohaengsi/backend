@@ -8,10 +8,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static woohaengsi.qnadiary.auth.oauth.type.ResourceServer.APPLE;
 
 import java.util.Map;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import woohaengsi.qnadiary.DatabaseCleanup;
 import woohaengsi.qnadiary.InitRestDocsTest;
 import woohaengsi.qnadiary.RestAssuredAndRestDocsTest;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
@@ -22,7 +24,10 @@ import woohaengsi.qnadiary.question.repository.QuestionRepository;
 
 @DisplayName("API 문서화 : 답변 조회")
 @RestAssuredAndRestDocsTest
-public class AnswerRestDocsTest extends InitRestDocsTest {
+class AnswerRestDocsTest extends InitRestDocsTest {
+
+    @Autowired
+    DatabaseCleanup databaseCleanup;
 
     @Autowired
     AnswerRepository answerRepository;
@@ -33,12 +38,14 @@ public class AnswerRestDocsTest extends InitRestDocsTest {
 
     @BeforeEach
     void setUp() {
-        answerRepository.deleteAllInBatch();
-        memberRepository.deleteAllInBatch();
-        questionRepository.deleteAllInBatch();
-
         memberRepository.save(Member.of(APPLE, "test", "user1", "test@woohaengsi.com", "image.url"));
         questionRepository.save(new Question("첫번째 질문"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanup.afterPropertiesSet();
+        databaseCleanup.execute();
     }
 
     @Test

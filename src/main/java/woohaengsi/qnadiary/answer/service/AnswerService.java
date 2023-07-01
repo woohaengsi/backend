@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohaengsi.qnadiary.answer.domain.Answer;
+import woohaengsi.qnadiary.answer.dto.AnswersReadResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
 import woohaengsi.qnadiary.answer.dto.AnswerDateByMonthResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerDateResponse;
@@ -68,12 +70,28 @@ public class AnswerService {
         LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime end = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
         List<Answer> findAnswers = answerRepository.findAllByMemberAndCreatedAtBetween(findMember, start, end);
-        return answersToDateByMonthResponses(findAnswers);
+        return answersToDateByMonthResponse(findAnswers);
     }
 
-    private AnswerDateByMonthResponse answersToDateByMonthResponses(List<Answer> answers) {
+    public AnswersReadResponse findAnswersByQuestion(Long memberId, Long questionId) {
+        Member findMember = findMemberBy(memberId);
+        Question findQuestion = findQuestionBy(questionId);
+        List<Answer> findAnswers = answerRepository.findAllByMemberAndQuestion(
+            findMember, findQuestion);
+        return answersToReadResponse(findAnswers);
+    }
+
+    private AnswerDateByMonthResponse answersToDateByMonthResponse(List<Answer> answers) {
         return AnswerDateByMonthResponse.of(answers.stream()
             .map(AnswerDateResponse::of)
+            .sorted(Comparator.comparing(AnswerDateResponse::getCreatedAt).reversed())
+            .collect(Collectors.toList()));
+    }
+
+    private AnswersReadResponse answersToReadResponse(List<Answer> answers) {
+        return AnswersReadResponse.of(answers.stream()
+            .map(AnswerDetailResponse::of)
+            .sorted(Comparator.comparing(AnswerDetailResponse::getCreatedAt).reversed())
             .collect(Collectors.toList()));
     }
 

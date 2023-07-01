@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
 import woohaengsi.qnadiary.answer.dto.AnswerDateByMonthResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerDetailResponse;
+import woohaengsi.qnadiary.answer.dto.AnswersReadResponse;
 import woohaengsi.qnadiary.answer.service.AnswerService;
 import woohaengsi.qnadiary.auth.jwt.JwtProvider;
 
@@ -53,6 +54,12 @@ public class AnswerController {
     public AnswerDateByMonthResponse findDateByMonth(@RequestHeader("Authorization") String accessToken, @PathVariable("year") Integer year, @PathVariable("month") Integer month) {
         Long memberId = decodeAccessToken(accessToken);
         return answerService.findAnswerDateByMonth(memberId, year, month);
+    }
+
+    @GetMapping("/answers/question/{questionId}")
+    public AnswersReadResponse findByQuestion(@RequestHeader("Authorization") String accessToken, @PathVariable("questionId") Long questionId) {
+        Long memberId = decodeAccessToken(accessToken);
+        return answerService.findAnswersByQuestion(memberId, questionId);
     }
 
     private Long decodeAccessToken(String accessToken) {

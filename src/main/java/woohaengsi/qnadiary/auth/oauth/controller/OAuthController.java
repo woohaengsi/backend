@@ -3,6 +3,8 @@ package woohaengsi.qnadiary.auth.oauth.controller;
 import static woohaengsi.qnadiary.auth.utils.OAuthUtils.ACCESS_TOKEN;
 import static woohaengsi.qnadiary.auth.utils.OAuthUtils.REFRESH_TOKEN;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import woohaengsi.qnadiary.auth.oauth.service.OAuthService;
 import woohaengsi.qnadiary.auth.service.LoginService;
 import woohaengsi.qnadiary.member.domain.Member;
 
+@Tag(name = "소셜 로그인", description = "소셜 로그인 관련 API")
 @RestController
 public class OAuthController {
 
@@ -37,6 +40,7 @@ public class OAuthController {
         this.jwtProvider = jwtProvider;
     }
 
+    @Operation(summary = "로그인 리다이렉트 (삭제 예정)", description = "유저가 동의하도록 리다이렉트 해준다.")
     @GetMapping("/login/{resource-server}/form")
     public void redirectLoginForm(HttpServletResponse response,
         @PathVariable(name = "resource-server") String resourceServer) throws IOException {
@@ -47,6 +51,7 @@ public class OAuthController {
         response.sendRedirect(loginFormUrl);
     }
 
+    @Operation(summary = "로그인 요청(수정 예정)", description = "Authorizaiton code로 로그인 요청")
     @PostMapping("/login/{resource-server}")
     public LoginMemberInfo login(@PathVariable(name = "resource-server") String resourceServer,
         @RequestBody Map<String, String> map, HttpServletResponse response) {
@@ -70,6 +75,7 @@ public class OAuthController {
         return LoginMemberInfo.of(loginMember);
     }
 
+    @Operation(summary = "토큰 재발급 요청", description = "토큰 만료시 리프레쉬 토큰으로 재요청한다.")
     @GetMapping("/reissue/access-token")
     public void reissue(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = request.getHeader(REFRESH_TOKEN);
@@ -79,6 +85,7 @@ public class OAuthController {
         response.setHeader(ACCESS_TOKEN, reissuedAccessToken);
     }
 
+    @Operation(summary = "로그아웃", description = "로그아웃 시 서버에 저장된 리프레쉬 토큰 삭제")
     @PostMapping("/logout")
     public void logout(HttpServletRequest request) {
         String refreshToken = request.getHeader(REFRESH_TOKEN);
@@ -86,6 +93,7 @@ public class OAuthController {
         loginService.deleteRefreshToken(decodedMemberId);
     }
 
+    @Operation(summary = "회원 탈퇴", description = "회원 정보와 관련 글을 모두 삭제(Hard Delete)")
     @DeleteMapping("/member/withdrawal")
     public void withdrawal(HttpServletRequest request) {
         String refreshToken = request.getHeader(REFRESH_TOKEN);

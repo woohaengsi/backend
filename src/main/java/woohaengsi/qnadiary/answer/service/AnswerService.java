@@ -3,20 +3,18 @@ package woohaengsi.qnadiary.answer.service;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohaengsi.qnadiary.answer.domain.Answer;
-import woohaengsi.qnadiary.answer.dto.AnswersReadResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
 import woohaengsi.qnadiary.answer.dto.AnswerDateByMonthResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerDateResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerDetailResponse;
+import woohaengsi.qnadiary.answer.dto.AnswersReadResponse;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
 import woohaengsi.qnadiary.member.domain.Member;
 import woohaengsi.qnadiary.member.repository.MemberRepository;
@@ -34,13 +32,12 @@ public class AnswerService {
 
 
     @Transactional
-    public Map<String, Long> create(AnswerCreateRequest request, Long memberId) {
+    public void create(AnswerCreateRequest request, Long memberId) {
         Member findMember = findMemberBy(memberId);
-        Question findQuestion = findQuestionBy(request.questionId());
-        Answer createdAnswer = new Answer(findMember, findQuestion, request.content());
+        Question findQuestion = findQuestionBy(request.getQuestionId());
+        Answer createdAnswer = new Answer(findMember, findQuestion, request.getContent());
         answerRepository.save(createdAnswer);
         findMember.increaseCurrentQuestionNumber();
-        return Collections.singletonMap("questionId", findQuestion.getId());
     }
 
     public AnswerDetailResponse findBy(Long answerId, Long memberId) {

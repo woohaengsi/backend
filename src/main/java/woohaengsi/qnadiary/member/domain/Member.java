@@ -41,6 +41,8 @@ public class Member extends BaseEntity {
     private String profileImageUrl;
     private String refreshToken;
     private Long currentQuestionNumber;
+    @Enumerated(value = EnumType.STRING)
+    private QuestionSetSize questionSetSize;
 
     @Builder
     private Member(ResourceServer resourceServer, String resourceServerId, String nickname,
@@ -52,6 +54,7 @@ public class Member extends BaseEntity {
         this.profileImageUrl = profileImageUrl;
         this.refreshToken = refreshToken;
         this.currentQuestionNumber = 1L;
+        this.questionSetSize = QuestionSetSize.MONTH;
     }
 
     public static Member of(ResourceServer resourceServer, String resourceServerId, String nickname,
@@ -71,5 +74,9 @@ public class Member extends BaseEntity {
 
     public void increaseCurrentQuestionNumber() {
         this.currentQuestionNumber++;
+    }
+
+    public void repeatQuestionCycle() {
+        this.currentQuestionNumber -= this.questionSetSize.getSize();
     }
 }

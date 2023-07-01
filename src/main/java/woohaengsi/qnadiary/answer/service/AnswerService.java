@@ -1,12 +1,19 @@
 package woohaengsi.qnadiary.answer.service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohaengsi.qnadiary.answer.domain.Answer;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
+import woohaengsi.qnadiary.answer.dto.AnswerDateByMonthResponse;
+import woohaengsi.qnadiary.answer.dto.AnswerDateResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerDetailResponse;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
 import woohaengsi.qnadiary.member.domain.Member;
@@ -55,6 +62,20 @@ public class AnswerService {
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 답변입니다."));
         answerRepository.delete(findAnswer);
     }
+    public AnswerDateByMonthResponse findAnswerDateByMonth(Long memberId, Integer year, Integer month) {
+        Member findMember = findMemberBy(memberId);
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime end = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
+        List<Answer> findAnswers = answerRepository.findAllByMemberAndCreatedAtBetween(findMember, start, end);
+        return answersToDateByMonthResponses(findAnswers);
+    }
+
+    private AnswerDateByMonthResponse answersToDateByMonthResponses(List<Answer> answers) {
+        return AnswerDateByMonthResponse.of(answers.stream()
+            .map(AnswerDateResponse::of)
+            .collect(Collectors.toList()));
+    }
 
     private Member findMemberBy(Long memberId) {
         return memberRepository.findById(memberId)
@@ -65,4 +86,5 @@ public class AnswerService {
         return questionRepository.findById(questionId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 질문입니다."));
     }
+
 }

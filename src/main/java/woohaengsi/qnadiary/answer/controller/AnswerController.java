@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
+import woohaengsi.qnadiary.answer.dto.AnswerDateByMonthResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerDetailResponse;
+import woohaengsi.qnadiary.answer.dto.AnswersReadResponse;
 import woohaengsi.qnadiary.answer.service.AnswerService;
 import woohaengsi.qnadiary.auth.jwt.JwtProvider;
 
@@ -46,6 +48,24 @@ public class AnswerController {
         @PathVariable("id") Long id) {
         Long memberId = decodeAccessToken(accessToken);
         answerService.delete(id, memberId);
+    }
+
+    @GetMapping("/answers/days/{year}/{month}")
+    public AnswerDateByMonthResponse findDateByYearAndMonth(@RequestHeader("Authorization") String accessToken, @PathVariable("year") Integer year, @PathVariable("month") Integer month) {
+        Long memberId = decodeAccessToken(accessToken);
+        return answerService.findAnswerDateByYearAndMonth(memberId, year, month);
+    }
+
+    @GetMapping("/answers/question/{questionId}")
+    public AnswersReadResponse findByQuestion(@RequestHeader("Authorization") String accessToken, @PathVariable("questionId") Long questionId) {
+        Long memberId = decodeAccessToken(accessToken);
+        return answerService.findAnswersByQuestion(memberId, questionId);
+    }
+
+    @GetMapping("/answers/{year}/{month}")
+    public AnswersReadResponse findByYearAndMonth(@RequestHeader("Authorization") String accessToken, @PathVariable("year") Integer year, @PathVariable("month") Integer month) {
+        Long memberId = decodeAccessToken(accessToken);
+        return answerService.findAnswerByYearAndMonth(memberId, year, month);
     }
 
     private Long decodeAccessToken(String accessToken) {

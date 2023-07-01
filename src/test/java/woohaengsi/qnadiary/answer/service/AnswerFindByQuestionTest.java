@@ -1,8 +1,10 @@
-package woohaengsi.qnadiary.answer.repository;
+package woohaengsi.qnadiary.answer.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static woohaengsi.qnadiary.auth.oauth.type.ResourceServer.APPLE;
 
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import woohaengsi.qnadiary.DatabaseCleanup;
 import woohaengsi.qnadiary.answer.domain.Answer;
+import woohaengsi.qnadiary.answer.dto.AnswerDetailResponse;
+import woohaengsi.qnadiary.answer.repository.AnswerRepository;
 import woohaengsi.qnadiary.member.domain.Member;
 import woohaengsi.qnadiary.member.repository.MemberRepository;
 import woohaengsi.qnadiary.question.domain.Question;
@@ -19,16 +23,18 @@ import woohaengsi.qnadiary.question.repository.QuestionRepository;
 
 @ActiveProfiles("test")
 @SpringBootTest
-class AnswerRepositoryTest {
+class AnswerFindByQuestionTest {
 
     @Autowired
-    private DatabaseCleanup databaseCleanup;
+    DatabaseCleanup databaseCleanup;
     @Autowired
-    private AnswerRepository answerRepository;
+    AnswerService answerService;
     @Autowired
-    private MemberRepository memberRepository;
+    AnswerRepository answerRepository;
     @Autowired
-    private QuestionRepository questionRepository;
+    MemberRepository memberRepository;
+    @Autowired
+    QuestionRepository questionRepository;
 
     @AfterEach
     void tearDown() {
@@ -43,25 +49,27 @@ class AnswerRepositoryTest {
         memberRepository.save(Member.of(APPLE, "resource_id", "name", "email", "image"));
     }
 
-
     @Test
-    @DisplayName("답변을 생성하면 저장된 답변의 갯수가 증가한다")
-    void create_increase_size() {
+    @DisplayName("특정 질문을 입력하면 해당 질문에 대한 답변을 반환한다.")
+    void find_answers_by_month() {
     	// given
-        Member member = memberRepository.findById(1L).orElseThrow(IllegalArgumentException::new);
+        Member findMember = memberRepository.findById(1L).orElseThrow(IllegalArgumentException::new);
         Question question = questionRepository.findById(1L)
             .orElseThrow(IllegalArgumentException::new);
-        String content = "답변1";
-        Answer answer = new Answer(member, question, content);
-        int oldSize = answerRepository.findAll().size();
-        memberRepository.save(member);
-        questionRepository.save(question);
+        Answer answer1 = new Answer(findMember, question, "답변 1");
+        Answer answer2 = new Answer(findMember, question, "답변 2");
+        answerRepository.saveAll(List.of(answer1,  answer2));
 
         // when
-        answerRepository.save(answer);
-        int newSize = answerRepository.findAll().size();
+        List<AnswerDetailResponse> responses = answerService.findAnswersByQuestion(
+            findMember.getId(), question.getId()).getResponses();
 
         // then
-        assertThat(newSize).isEqualTo(oldSize + 1);
+        assertThat(responses).hasSize(2)
+            .extracting("id", "question", "answer")
+            .containsExactly(
+                tuple(2L, question.getContent(), answer2.getContent()),
+                tuple(1L, question.getContent(), answer1.getContent())
+            );
     }
 }

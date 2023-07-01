@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import woohaengsi.qnadiary.auth.jwt.JwtProvider;
 import woohaengsi.qnadiary.auth.oauth.dto.LoginMemberInfo;
@@ -38,6 +39,12 @@ public class OAuthController {
         this.oAuthServiceMap = oAuthServiceMap;
         this.loginService = loginService;
         this.jwtProvider = jwtProvider;
+    }
+
+    @Operation(summary = "CallBack URL", description = "로그인 시도 시 해당 URL로 Authorization code를 발급한다.")
+    @GetMapping("/login/{resource-server}/callback")
+    public void loginCallback(@RequestParam String authorizationCode) throws IOException {
+
     }
 
     @Operation(summary = "로그인 리다이렉트 (삭제 예정)", description = "유저가 동의하도록 리다이렉트 해준다.")

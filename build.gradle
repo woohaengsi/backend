@@ -67,47 +67,18 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+
 	// REST Docs
-	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+//	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+//	testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
 
 	// TestContainers
 	testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
 	testImplementation 'org.testcontainers:mysql:1.17.6'
 }
 
-tasks.named('test') {
-	outputs.dir snippetsDir
+test {
 	useJUnitPlatform()
-}
-
-tasks.named('asciidoctor') {
-	inputs.dir snippetsDir
-	dependsOn test
-	configurations 'asciidoctorExt'
-
-	sources {
-		include '**/index.adoc'
-	}
-
-	baseDirFollowsSourceFile()
-}
-
-asciidoctor.doFirst {
-	delete file("${project.rootDir}/src/main/resources/static/docs")
-}
-
-task copyDocument(type: Copy) {
-	dependsOn asciidoctor
-
-	from "${project.buildDir}/docs/asciidoc"
-	into "${project.rootDir}/src/main/resources/static/docs"
-}
-
-build {
-	dependsOn copyDocument
-}
-
-bootJar {
-	archiveFileName="woohaengsi-backend.jar"
 }

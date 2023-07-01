@@ -11,7 +11,9 @@ spring:
       mode: always
 
   config:
-    import: classpath:oauth.yml
+    import:
+      - classpath:oauth.yml
+      - classpath:swagger.yml
 
 
 ---

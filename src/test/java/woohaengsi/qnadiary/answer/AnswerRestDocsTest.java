@@ -14,8 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import woohaengsi.qnadiary.DatabaseCleanup;
-import woohaengsi.qnadiary.InitRestDocsTest;
-import woohaengsi.qnadiary.RestAssuredAndRestDocsTest;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
 import woohaengsi.qnadiary.member.domain.Member;
 import woohaengsi.qnadiary.member.repository.MemberRepository;
@@ -23,7 +21,6 @@ import woohaengsi.qnadiary.question.domain.Question;
 import woohaengsi.qnadiary.question.repository.QuestionRepository;
 
 @DisplayName("API 문서화 : 답변 조회")
-@RestAssuredAndRestDocsTest
 class AnswerRestDocsTest extends InitRestDocsTest {
 
     @Autowired

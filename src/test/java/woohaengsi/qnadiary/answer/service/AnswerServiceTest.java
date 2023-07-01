@@ -2,7 +2,7 @@ package woohaengsi.qnadiary.answer.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Map;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import woohaengsi.qnadiary.DatabaseCleanup;
+import woohaengsi.qnadiary.answer.domain.Answer;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
 import woohaengsi.qnadiary.auth.oauth.type.ResourceServer;
@@ -52,9 +53,11 @@ class AnswerServiceTest {
         AnswerCreateRequest request = new AnswerCreateRequest(1L, "답변1");
 
     	// when
-        Map<String, Long> map = answerService.create(request, 1L);
+        answerService.create(request, 1L);
+        List<Answer> responses = answerRepository.findAll();
 
         // then
-        assertThat(map.get("questionId")).isEqualTo(request.questionId());
+        assertThat(responses).hasSize(1);
     }
+
 }

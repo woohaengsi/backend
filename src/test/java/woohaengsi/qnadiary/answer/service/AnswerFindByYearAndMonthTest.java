@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import woohaengsi.qnadiary.DatabaseCleanup;
 import woohaengsi.qnadiary.answer.domain.Answer;
 import woohaengsi.qnadiary.answer.dto.AnswerDateResponse;
+import woohaengsi.qnadiary.answer.dto.AnswerDetailResponse;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
 import woohaengsi.qnadiary.member.domain.Member;
 import woohaengsi.qnadiary.member.repository.MemberRepository;
@@ -24,7 +25,7 @@ import woohaengsi.qnadiary.question.repository.QuestionRepository;
 
 @ActiveProfiles("test")
 @SpringBootTest
-class AnswerFindByDateTest {
+class AnswerFindByYearAndMonthTest {
 
     @Autowired
     DatabaseCleanup databaseCleanup;
@@ -51,8 +52,8 @@ class AnswerFindByDateTest {
     }
 
     @Test
-    @DisplayName("특정 yyyy-MM 을 입력하면 해당 기간에 작성 답변을 조회한다.")
-    void find_answers_by_month() {
+    @DisplayName("특정 yyyy-MM 을 입력하면 해당 기간에 작성한 날짜을 조회한다.")
+    void find_days_by_month() {
     	// given
         Member findMember = memberRepository.findById(1L).orElseThrow(IllegalArgumentException::new);
         Question question = questionRepository.findById(1L)
@@ -68,7 +69,7 @@ class AnswerFindByDateTest {
         answerRepository.saveAll(findAnswers);
 
         // when
-        List<AnswerDateResponse> responses = answerService.findAnswerDateByMonth(
+        List<AnswerDateResponse> responses = answerService.findAnswerDateByYearAndMonth(
             findMember.getId(), 2023, 6).getDateResponses();
 
         // then
@@ -77,6 +78,36 @@ class AnswerFindByDateTest {
             .containsExactly(
                 tuple(2L, LocalDate.of(2023, 6, 22)),
                 tuple(1L, LocalDate.of(2023, 6, 12))
+            );
+    }
+
+    @Test
+    @DisplayName("특정 yyyy-MM 을 입력하면 해당 기간에 작성한 답변을 최신순으로 조회한다.")
+    void find_answers_by_month() {
+        // given
+        Member findMember = memberRepository.findById(1L).orElseThrow(IllegalArgumentException::new);
+        Question question = questionRepository.findById(1L)
+            .orElseThrow(IllegalArgumentException::new);
+        Answer answer1 = new Answer(findMember, question, "답변 1");
+        Answer answer2 = new Answer(findMember, question, "답변 2");
+        answerRepository.saveAll(List.of(answer1,  answer2));
+        LocalDate answer1Date = LocalDate.of(2023, 6, 12);
+        LocalDate answer2Date = LocalDate.of(2023, 6, 22);
+        List<Answer> findAnswers = answerRepository.findAll();
+        findAnswers.get(0).updateCreateAt(answer1Date.atStartOfDay());
+        findAnswers.get(1).updateCreateAt(answer2Date.atStartOfDay());
+        answerRepository.saveAll(findAnswers);
+
+        // when
+        List<AnswerDetailResponse> responses = answerService.findAnswerByYearAndMonth(
+            findMember.getId(), 2023, 6).getResponses();
+
+        // then
+        assertThat(responses).hasSize(2)
+            .extracting("id", "question", "answer")
+            .containsExactly(
+                tuple(2L, question.getContent(), answer2.getContent()),
+                tuple(1L, question.getContent(), answer1.getContent())
             );
     }
 }

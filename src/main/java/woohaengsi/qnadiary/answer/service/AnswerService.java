@@ -64,12 +64,8 @@ public class AnswerService {
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 답변입니다."));
         answerRepository.delete(findAnswer);
     }
-    public AnswerDateByMonthResponse findAnswerDateByMonth(Long memberId, Integer year, Integer month) {
-        Member findMember = findMemberBy(memberId);
-        YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime end = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
-        List<Answer> findAnswers = answerRepository.findAllByMemberAndCreatedAtBetween(findMember, start, end);
+    public AnswerDateByMonthResponse findAnswerDateByYearAndMonth(Long memberId, Integer year, Integer month) {
+        List<Answer> findAnswers = getAnswersByYearMonth(memberId, year, month);
         return answersToDateByMonthResponse(findAnswers);
     }
 
@@ -78,6 +74,11 @@ public class AnswerService {
         Question findQuestion = findQuestionBy(questionId);
         List<Answer> findAnswers = answerRepository.findAllByMemberAndQuestion(
             findMember, findQuestion);
+        return answersToReadResponse(findAnswers);
+    }
+
+    public AnswersReadResponse findAnswerByYearAndMonth(Long memberId, Integer year, Integer month) {
+        List<Answer> findAnswers = getAnswersByYearMonth(memberId, year, month);
         return answersToReadResponse(findAnswers);
     }
 
@@ -93,6 +94,13 @@ public class AnswerService {
             .map(AnswerDetailResponse::of)
             .sorted(Comparator.comparing(AnswerDetailResponse::getCreatedAt).reversed())
             .collect(Collectors.toList()));
+    }
+    private List<Answer> getAnswersByYearMonth(Long memberId, Integer year, Integer month) {
+        Member findMember = findMemberBy(memberId);
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime end = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
+        return answerRepository.findAllByMemberAndCreatedAtBetween(findMember, start, end);
     }
 
     private Member findMemberBy(Long memberId) {

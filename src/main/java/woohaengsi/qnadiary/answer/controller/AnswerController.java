@@ -51,15 +51,21 @@ public class AnswerController {
     }
 
     @GetMapping("/answers/days/{year}/{month}")
-    public AnswerDateByMonthResponse findDateByMonth(@RequestHeader("Authorization") String accessToken, @PathVariable("year") Integer year, @PathVariable("month") Integer month) {
+    public AnswerDateByMonthResponse findDateByYearAndMonth(@RequestHeader("Authorization") String accessToken, @PathVariable("year") Integer year, @PathVariable("month") Integer month) {
         Long memberId = decodeAccessToken(accessToken);
-        return answerService.findAnswerDateByMonth(memberId, year, month);
+        return answerService.findAnswerDateByYearAndMonth(memberId, year, month);
     }
 
     @GetMapping("/answers/question/{questionId}")
     public AnswersReadResponse findByQuestion(@RequestHeader("Authorization") String accessToken, @PathVariable("questionId") Long questionId) {
         Long memberId = decodeAccessToken(accessToken);
         return answerService.findAnswersByQuestion(memberId, questionId);
+    }
+
+    @GetMapping("/answers/{year}/{month}")
+    public AnswersReadResponse findByYearAndMonth(@RequestHeader("Authorization") String accessToken, @PathVariable("year") Integer year, @PathVariable("month") Integer month) {
+        Long memberId = decodeAccessToken(accessToken);
+        return answerService.findAnswerByYearAndMonth(memberId, year, month);
     }
 
     private Long decodeAccessToken(String accessToken) {

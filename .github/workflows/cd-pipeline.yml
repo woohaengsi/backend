@@ -68,21 +68,21 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend:latest
           cache-to: type=inline
 
-    pull_from_registry:
-      name: Connect server ssh and pull from container registry
-      needs: push_to_registry
-      runs-on: ubuntu-latest
-      steps:
-        - name: connect ssh
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.NCP_SERVER_IP }}
-            username: ${{ secrets.NCP_SERVER_USERNAME }}
-            password: ${{ secrets.NCP_SERVER_PASSWORD }}
-            port: ${{ secrets.NCP_SERVER_PORT }}
-            script: |
-              docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend
-              docker stop $(docker ps -a -q)
-              docker rm $(docker ps -a -q)
-              docker run -d  --name woohaengsi-backend ${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend
-              docker image prune -f
+  pull_from_registry:
+    name: Connect server ssh and pull from container registry
+    needs: push_to_registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: connect ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.NCP_SERVER_IP }}
+          username: ${{ secrets.NCP_SERVER_USERNAME }}
+          password: ${{ secrets.NCP_SERVER_PASSWORD }}
+          port: ${{ secrets.NCP_SERVER_PORT }}
+          script: |
+            docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend
+            docker stop $(docker ps -a -q)
+            docker rm $(docker ps -a -q)
+            docker run -d  --name woohaengsi-backend ${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend
+            docker image prune -f

@@ -13,8 +13,8 @@ permissions:
   contents: read
 
 jobs:
-  be-test:
-    name: test spring boot
+  build_docker_push:
+    name: build and push
     runs-on: ubuntu-20.04
 
     steps:
@@ -28,6 +28,24 @@ jobs:
           distribution: "temurin"
           cache: gradle
 
+      - name: Insert Database Information
+        run: |
+          sed -i "s|\${DATASOURCE_URL}|$DATASOURCE_URL|g" ./src/main/resources/application.yml
+          sed -i "s|\${DATASOURCE_USERNAME}|$DATASOURCE_USERNAME|g" ./src/main/resources/application.yml
+          sed -i "s|\${DATASOURCE_PASSWORD}|$DATASOURCE_PASSWORD|g" ./src/main/resources/application.yml
+        env:
+          DATASOURCE_URL: ${{ secrets.DATASOURCE_URL }}
+          DATASOURCE_USERNAME: ${{ secrets.DATASOURCE_USERNAME }}
+          DATASOURCE_PASSWORD: ${{ secrets.DATASOURCE_PASSWORD }}
+
+      - name: Insert OAuth Information
+        run: |
+          sed -i "s|\${JWT_ISSUER}|JWT_ISSUER|g" ./src/main/resources/oauth.yml
+          sed -i "s|\${JWT_SECRET_KEY}|JWT_SECRET_KEY|g" ./src/main/resources/oauth.yml
+        env:
+          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+
       - name: use gradle cache
         uses: actions/cache@v3
         with:
@@ -37,19 +55,12 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
       - name: grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: build with gradle
         run: ./gradlew build
 
-  push_to_registry:
-    name: Push to ncp container registry
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to NCP Container Registry
@@ -64,13 +75,13 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend:latest
-          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend:latest
+          tags: ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary:latest
+          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary:latest
           cache-to: type=inline
 
   pull_from_registry:
     name: Connect server ssh and pull from container registry
-    needs: push_to_registry
+    needs: build_docker_push
     runs-on: ubuntu-latest
     steps:
       - name: connect ssh
@@ -81,8 +92,7 @@ jobs:
           password: ${{ secrets.NCP_SERVER_PASSWORD }}
           port: ${{ secrets.NCP_SERVER_PORT }}
           script: |
-            docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend
-            docker stop $(docker ps -a -q)
-            docker rm $(docker ps -a -q)
-            docker run -d  --name woohaengsi-backend ${{ secrets.NCP_CONTAINER_REGISTRY }}/woohaengsi-backend
-            docker image prune -f
+            docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary
+            docker ps -a -q —filter "name=qna-diary" | grep -q . && docker stop qna-diary && docker rm qna-diary | true
+            docker run -d -p 80:8080 ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary
+            docker rmi -f $(docker images -f "dangling=true" -q) || true

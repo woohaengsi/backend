@@ -29,13 +29,14 @@ spring:
       hibernate:
         format_sql: true
     defer-datasource-initialization: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 
   datasource:
     url: ${DATASOURCE_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DATASOURCE_USERNAME}
     password: ${DATASOURCE_PASSWORD}
-
 
 
 
@@ -84,4 +85,3 @@ spring:
   sql:
     init:
       mode: never
-

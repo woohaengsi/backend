@@ -40,8 +40,11 @@ jobs:
 
       - name: Insert OAuth Information
         run: |
-          sed -i "s|\${JWT_ISSUER}|JWT_ISSUER|g" ./src/main/resources/oauth.yml
-          sed -i "s|\${JWT_SECRET_KEY}|JWT_SECRET_KEY|g" ./src/main/resources/oauth.yml
+          sed -i "s|\${JWT_ISSUER}|$JWT_ISSUER|g" ./src/main/resources/oauth.yml
+          sed -i "s|\${JWT_SECRET_KEY}|$JWT_SECRET_KEY|g" ./src/main/resources/oauth.yml
+          sed -i "s|\${KAKAO_CLIENT_ID}|KAKAO_CLIENT_ID|g" ./src/main/resources/oauth.yml
+          sed -i "s|\${KAKAO_CLIENT_SECRET}|KAKAO_CLIENT_SECRET|g" ./src/main/resources/oauth.yml
+          sed -i "s|\${KAKAO_REDIRECT_URI}|KAKAO_REDIRECT_URI|g" ./src/main/resources/oauth.yml
         env:
           JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}

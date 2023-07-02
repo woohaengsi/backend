@@ -80,7 +80,7 @@ public class OAuthController {
     public void login(@PathVariable(name = "resource-server") String resourceServer,
         @RequestBody LoginRequest request, HttpServletResponse response) {
 
-        Member loginMember = loginService.login(request.toMember(ResourceServer.valueOf(resourceServer), null));
+        Member loginMember = loginService.login(request.toMember(ResourceServer.valueOf(resourceServer.toUpperCase()), null));
 
         String jwtAccessToken = jwtProvider.issueAccessToken(loginMember.getId());
         String jwtRefreshToken = jwtProvider.issueRefreshToken(loginMember.getId());

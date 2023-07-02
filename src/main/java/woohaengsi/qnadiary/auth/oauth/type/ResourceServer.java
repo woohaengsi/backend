@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum ResourceServer {
-    KAKAO("kakao"),
-    APPLE("apple");
-
-    private final String name;
+    KAKAO,
+    APPLE;
 }

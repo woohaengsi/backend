@@ -95,8 +95,8 @@ jobs:
           password: ${{ secrets.NCP_SERVER_PASSWORD }}
           port: ${{ secrets.NCP_SERVER_PORT }}
           script: |
-            docker ps -a -q —filter "name=qna-diary" | grep -q . && docker stop qna-diary && docker rm qna-diary | true
-            docker rmi ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary
-            docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary
+            docker stop $(docker ps -a -q)
+            docker rm $(docker ps -a -q)
+            docker pull ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary:latest
             docker run -d -p 80:8080 ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary
-            docker rmi -f $(docker images -f "dangling=true" -q) || true
+            docker image prune -f

@@ -78,8 +78,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary:latest
-          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary:latest
+          tags: ${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary
+          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/qna-diary
           cache-to: type=inline
 
   pull_from_registry:

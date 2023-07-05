@@ -2,7 +2,7 @@ name: BE - CD
 
 on:
   push:
-    branches: [deploy]
+    branches: [main]
     paths:
       [
         "src/**",

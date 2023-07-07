@@ -2,6 +2,7 @@ package woohaengsi.qnadiary.member.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -41,6 +42,7 @@ public class Member extends BaseEntity {
     private String profileImageUrl;
     private String refreshToken;
     private Long currentQuestionNumber;
+    private Long maxQuestionNumber;
     @Enumerated(value = EnumType.STRING)
     private QuestionSetSize questionSetSize;
 
@@ -54,6 +56,7 @@ public class Member extends BaseEntity {
         this.profileImageUrl = profileImageUrl;
         this.refreshToken = refreshToken;
         this.currentQuestionNumber = 1L;
+        this.maxQuestionNumber = 1L;
         this.questionSetSize = QuestionSetSize.MONTH;
     }
 
@@ -73,10 +76,35 @@ public class Member extends BaseEntity {
     }
 
     public void increaseCurrentQuestionNumber() {
+        updateMaximumQuestionNumber();
         this.currentQuestionNumber++;
     }
 
     public void repeatQuestionCycle() {
         this.currentQuestionNumber -= this.questionSetSize.getSize();
+    }
+
+    public boolean isAbleToGetFlower() {
+        return (isNewQuestion() && isLastQuestionOfSet());
+    }
+
+    public Long getNextFlowerNumber() {
+        return this.currentQuestionNumber / questionSetSize.getSize();
+    }
+
+    public void addBloomedFlower(BloomedFlower flower) {
+        this.bloomedFlowers.add(flower);
+    }
+
+    private boolean isNewQuestion() {
+        return Objects.equals(this.maxQuestionNumber, this.currentQuestionNumber-1);
+    }
+
+    private boolean isLastQuestionOfSet() {
+        return this.currentQuestionNumber % questionSetSize.getSize() == 0;
+    }
+
+    private void updateMaximumQuestionNumber() {
+        this.maxQuestionNumber = Math.max(this.maxQuestionNumber, this.currentQuestionNumber);
     }
 }

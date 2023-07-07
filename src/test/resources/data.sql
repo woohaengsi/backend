@@ -48,3 +48,9 @@ VALUES
     (10, '동백나무', '진실한 사랑'),
     (11, '포인세티아', '축복합니다'),
     (12, '물망초', '나를 잊지 말아요');
+
+INSERT INTO member
+(id, resource_server, resource_server_id,nickname, email_address,
+ profile_image_url, refresh_token, current_question_number,max_question_number, question_set_size)
+VALUES
+    (1, 'APPLE', 'appleId', 'test_user', 'test_email', 'test_image', 'test_token', 1, 0, 'MONTH');

@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohaengsi.qnadiary.common.BaseEntity;
@@ -28,8 +29,16 @@ public class BloomedFlower extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Flower flower;
 
-    public BloomedFlower(Member member, Flower flower) {
+    @Builder
+    private BloomedFlower(Member member, Flower flower) {
         this.member = member;
         this.flower = flower;
+    }
+
+    public static BloomedFlower from(Member member, Flower flower) {
+        return BloomedFlower.builder()
+            .member(member)
+            .flower(flower)
+            .build();
     }
 }

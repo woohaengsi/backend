@@ -16,6 +16,7 @@ import woohaengsi.qnadiary.answer.dto.AnswerDateResponse;
 import woohaengsi.qnadiary.answer.dto.AnswerDetailResponse;
 import woohaengsi.qnadiary.answer.dto.AnswersReadResponse;
 import woohaengsi.qnadiary.answer.repository.AnswerRepository;
+import woohaengsi.qnadiary.bloomedflower.service.BloomedFlowerService;
 import woohaengsi.qnadiary.member.domain.Member;
 import woohaengsi.qnadiary.member.repository.MemberRepository;
 import woohaengsi.qnadiary.question.domain.Question;
@@ -26,6 +27,7 @@ import woohaengsi.qnadiary.question.repository.QuestionRepository;
 @Transactional(readOnly = true)
 public class AnswerService {
 
+    private final BloomedFlowerService bloomedFlowerService;
     private final AnswerRepository answerRepository;
     private final MemberRepository memberRepository;
     private final QuestionRepository questionRepository;
@@ -37,6 +39,9 @@ public class AnswerService {
         Question findQuestion = findQuestionBy(request.getQuestionId());
         Answer createdAnswer = new Answer(findMember, findQuestion, request.getContent());
         answerRepository.save(createdAnswer);
+        if (findMember.isAbleToGetFlower()) {
+            bloomedFlowerService.giveFlowerToMember(findMember);
+        }
         findMember.increaseCurrentQuestionNumber();
     }
 

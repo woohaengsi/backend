@@ -19,11 +19,9 @@ public class Flower {
 
     private String name;
     private String flowerLanguage;
-    private String imageUrl;
 
-    public Flower(String name, String flowerLanguage, String imageUrl) {
+    public Flower(String name, String flowerLanguage) {
         this.name = name;
         this.flowerLanguage = flowerLanguage;
-        this.imageUrl = imageUrl;
     }
 }

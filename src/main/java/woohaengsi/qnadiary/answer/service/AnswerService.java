@@ -1,7 +1,6 @@
 package woohaengsi.qnadiary.answer.service;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
@@ -99,9 +98,11 @@ public class AnswerService {
     }
     private List<Answer> getAnswersByYearMonth(Long memberId, Integer year, Integer month) {
         Member findMember = findMemberBy(memberId);
+
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime end = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
+        LocalDateTime end = start.plusMonths(1L);
+
         return answerRepository.findAllByMemberAndCreatedAtBetween(findMember, start, end);
     }
 
@@ -114,5 +115,4 @@ public class AnswerService {
         return questionRepository.findById(questionId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 질문입니다."));
     }
-
 }

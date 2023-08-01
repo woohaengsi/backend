@@ -19,7 +19,8 @@ import woohaengsi.qnadiary.question.domain.Question;
 import woohaengsi.qnadiary.question.repository.QuestionRepository;
 
 @Sql("classpath:/data.sql")
-class AnswerRepositoryTest extends RepositoryIntegrationTest {
+@RepositoryIntegrationTest
+class AnswerRepositoryTest {
 
     @Autowired
     AnswerRepository answerRepository;

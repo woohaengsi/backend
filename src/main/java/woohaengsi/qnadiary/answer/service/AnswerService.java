@@ -33,15 +33,18 @@ public class AnswerService {
 
 
     @Transactional
-    public void create(AnswerCreateRequest request, Long memberId) {
+    public Long create(AnswerCreateRequest request, Long memberId) {
         Member findMember = findMemberBy(memberId);
         Question findQuestion = findQuestionBy(request.getQuestionId());
         Answer createdAnswer = new Answer(findMember, findQuestion, request.getContent());
-        answerRepository.save(createdAnswer);
+
         if (findMember.isAbleToGetFlower()) {
             bloomedFlowerService.giveFlowerToMember(findMember);
         }
+
         findMember.increaseCurrentQuestionNumber();
+
+        return answerRepository.save(createdAnswer).getId();
     }
 
     public AnswerDetailResponse findBy(Long answerId, Long memberId) {
@@ -55,6 +58,7 @@ public class AnswerService {
         Member findMember = findMemberBy(memberId);
         Answer findAnswer = answerRepository.findByIdAndMember(answerId, findMember)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 답변입니다."));
+
         findAnswer.updateContent(content);
     }
 
@@ -63,6 +67,7 @@ public class AnswerService {
         Member findMember = findMemberBy(memberId);
         Answer findAnswer = answerRepository.findByIdAndMember(answerId, findMember)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 답변입니다."));
+
         answerRepository.delete(findAnswer);
     }
     public AnswerDateByMonthResponse findAnswerDateByYearAndMonth(Long memberId, Integer year, Integer month) {
@@ -75,11 +80,13 @@ public class AnswerService {
         Question findQuestion = findQuestionBy(questionId);
         List<Answer> findAnswers = answerRepository.findAllByMemberAndQuestion(
             findMember, findQuestion);
+
         return answersToReadResponse(findAnswers);
     }
 
     public AnswersReadResponse findAnswerByYearAndMonth(Long memberId, Integer year, Integer month) {
         List<Answer> findAnswers = getAnswersByYearMonth(memberId, year, month);
+
         return answersToReadResponse(findAnswers);
     }
 

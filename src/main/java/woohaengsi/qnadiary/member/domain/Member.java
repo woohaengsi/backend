@@ -24,6 +24,8 @@ import woohaengsi.qnadiary.common.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity {
 
+    private static final Long INIT_QUESTION_NUMBER = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,15 +50,15 @@ public class Member extends BaseEntity {
 
     @Builder
     private Member(ResourceServer resourceServer, String resourceServerId, String nickname,
-        String emailAddress, String profileImageUrl, String refreshToken) {
+        String emailAddress, String profileImageUrl, String refreshToken, Long currentQuestionNumber, Long maxQuestionNumber) {
         this.resourceServer = resourceServer;
         this.resourceServerId = resourceServerId;
         this.nickname = nickname;
         this.emailAddress = emailAddress;
         this.profileImageUrl = profileImageUrl;
         this.refreshToken = refreshToken;
-        this.currentQuestionNumber = 1L;
-        this.maxQuestionNumber = 1L;
+        this.currentQuestionNumber = currentQuestionNumber;
+        this.maxQuestionNumber = maxQuestionNumber;
         this.questionSetSize = QuestionSetSize.MONTH;
     }
 
@@ -68,6 +70,8 @@ public class Member extends BaseEntity {
             .nickname(nickname)
             .emailAddress(emailAddress)
             .profileImageUrl(profileImageUrl)
+            .currentQuestionNumber(INIT_QUESTION_NUMBER)
+            .maxQuestionNumber(INIT_QUESTION_NUMBER)
             .build();
     }
 

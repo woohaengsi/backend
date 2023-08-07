@@ -7,20 +7,17 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 import woohaengsi.qnadiary.answer.dto.AnswerCreateRequest;
 import woohaengsi.qnadiary.answer.service.AnswerService;
 import woohaengsi.qnadiary.bloomedflower.domain.BloomedFlower;
 import woohaengsi.qnadiary.flower.domain.Flower;
 import woohaengsi.qnadiary.member.domain.Member;
 import woohaengsi.qnadiary.member.repository.MemberRepository;
+import woohaengsi.qnadiary.ServiceIntegrationTest;
 
 @Sql("classpath:/data.sql")
-@ActiveProfiles("test")
-@SpringBootTest
+@ServiceIntegrationTest
 class BloomedFlowerServiceTest {
 
     @Autowired
@@ -31,14 +28,13 @@ class BloomedFlowerServiceTest {
     MemberRepository memberRepository;
 
     @Test
-    @Transactional
     @DisplayName("1~30번까지의 질문을 처음 답변하면 1번 꽃인 수선화를 받는다.")
     void get_first_flower() {
     	// given
         Member member = memberRepository.save(
             Member.of(APPLE, "apple", "test_name", "test@test.com", "test_url"));
         for (Long i = 1L; i < 31; i++) {
-            answerService.create(new AnswerCreateRequest(i, i + "번 답변"), 1L);
+            answerService.create(new AnswerCreateRequest(i, i + "번 답변"), member.getId());
         }
         // when
         List<BloomedFlower> flowers = member.getBloomedFlowers();

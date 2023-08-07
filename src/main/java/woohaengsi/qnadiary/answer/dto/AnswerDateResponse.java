@@ -18,7 +18,7 @@ public class AnswerDateResponse {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private final LocalDate createdAt;
 
-    private AnswerDateResponse(Long id, LocalDateTime createdAt) {
+    public AnswerDateResponse(Long id, LocalDateTime createdAt) {
         this.id = id;
         this.createdAt = createdAt.toLocalDate();
     }

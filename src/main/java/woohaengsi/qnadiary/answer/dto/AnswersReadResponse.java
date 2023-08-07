@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class AnswersReadResponse {
-    private final List<AnswerDetailResponse> responses;
+    private final List<AnswerDetailResponse> detailResponses;
 
     private AnswersReadResponse(List<AnswerDetailResponse> responses) {
-        this.responses = responses;
+        this.detailResponses = responses;
     }
 
     public static AnswersReadResponse of(List<AnswerDetailResponse> responses) {

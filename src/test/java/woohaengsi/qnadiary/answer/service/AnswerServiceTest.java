@@ -242,7 +242,7 @@ class AnswerServiceTest {
 
         // when
         List<AnswerDetailResponse> responses = answerService.findAnswersByQuestion(member.getId(),
-            question.getId()).getResponses();
+            question.getId()).getDetailResponses();
 
         // then
         assertThat(responses).hasSize(2)
@@ -267,7 +267,7 @@ class AnswerServiceTest {
 
         // when
         List<AnswerDetailResponse> responses = answerService.findAnswerByYearAndMonth(
-            member.getId(), year, month).getResponses();
+            member.getId(), year, month).getDetailResponses();
 
         // then
         assertThat(responses).hasSize(3)

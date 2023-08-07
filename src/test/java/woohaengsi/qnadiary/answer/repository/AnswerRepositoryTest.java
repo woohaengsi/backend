@@ -3,65 +3,97 @@ package woohaengsi.qnadiary.answer.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static woohaengsi.qnadiary.auth.oauth.type.ResourceServer.APPLE;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import woohaengsi.qnadiary.DatabaseCleanup;
+import org.springframework.test.context.jdbc.Sql;
+import woohaengsi.qnadiary.RepositoryIntegrationTest;
 import woohaengsi.qnadiary.answer.domain.Answer;
 import woohaengsi.qnadiary.member.domain.Member;
 import woohaengsi.qnadiary.member.repository.MemberRepository;
 import woohaengsi.qnadiary.question.domain.Question;
 import woohaengsi.qnadiary.question.repository.QuestionRepository;
 
-@ActiveProfiles("test")
-@SpringBootTest
+@Sql("classpath:/data.sql")
+@RepositoryIntegrationTest
 class AnswerRepositoryTest {
 
     @Autowired
-    private DatabaseCleanup databaseCleanup;
+    AnswerRepository answerRepository;
     @Autowired
-    private AnswerRepository answerRepository;
+    MemberRepository memberRepository;
     @Autowired
-    private MemberRepository memberRepository;
-    @Autowired
-    private QuestionRepository questionRepository;
+    QuestionRepository questionRepository;
 
-    @AfterEach
-    void tearDown() {
-        databaseCleanup.afterPropertiesSet();
-        databaseCleanup.execute();
-    }
-
-    @BeforeEach
-    void setUp() {
-        questionRepository.save(new Question("1번 질문"));
-        questionRepository.save(new Question("2번 질문"));
-        memberRepository.save(Member.of(APPLE, "resource_id", "name", "email", "image"));
-    }
-
-
+    @DisplayName("주어진 작성자와 답변 ID가 일치하는 답변을 조회한다.")
     @Test
-    @DisplayName("답변을 생성하면 저장된 답변의 갯수가 증가한다")
-    void create_increase_size() {
-    	// given
-        Member member = memberRepository.findById(1L).orElseThrow(IllegalArgumentException::new);
-        Question question = questionRepository.findById(1L)
-            .orElseThrow(IllegalArgumentException::new);
-        String content = "답변1";
-        Answer answer = new Answer(member, question, content);
-        int oldSize = answerRepository.findAll().size();
-        memberRepository.save(member);
-        questionRepository.save(question);
+    void findAnswerWithRightIdAndMember() {
+        // given
+        Question question = questionRepository.save(new Question("1번 질문"));
+        Member member = memberRepository.save(
+            Member.of(APPLE, "resource_id", "name", "email", "image"));
+
+        Answer answer = new Answer(member, question, "답변 1");
+        answerRepository.save(answer);
 
         // when
-        answerRepository.save(answer);
-        int newSize = answerRepository.findAll().size();
+        Optional<Answer> findAnswer = answerRepository.findByIdAndMember(answer.getId(), member);
 
         // then
-        assertThat(newSize).isEqualTo(oldSize + 1);
+        assertThat(findAnswer).contains(answer);
+    }
+
+    @DisplayName("답변 ID와 작성자가 일치하지 않으면 NULL을 반환한다.")
+    @Test
+    void findAnswerWithWrongIdAndMember() {
+        // given
+        Question question = questionRepository.save(new Question("1번 질문"));
+        Member member1 = memberRepository.save(
+            Member.of(APPLE, "resource_id", "name", "email", "image"));
+        Member member2 = memberRepository.save(
+            Member.of(APPLE, "resource_id", "name", "email", "image"));
+        Answer answer = new Answer(member1, question, "답변 1");
+        answerRepository.save(answer);
+
+        // when
+        Optional<Answer> findAnswer = answerRepository.findByIdAndMember(answer.getId(), member2);
+
+        // then
+        assertThat(findAnswer).isEmpty();
+    }
+
+    @DisplayName("해당 기간에 회원이 작성한 모든 글을 조회한다.")
+    @Test
+    void findAllByMemberAndCreatedAtBetween() {
+        // given
+        Member member = memberRepository.findById(1L).get();
+
+        YearMonth yearMonth = YearMonth.of(2023, 7);
+        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime end = start.plusMonths(1L);
+
+        // when
+        List<Answer> answers = answerRepository.findAllByMemberAndCreatedAtBetween(member, start, end);
+
+        // then
+        assertThat(answers).hasSize(3);
+    }
+
+    @DisplayName("해당 기간에 회원이 해당 질문에 답변한 모든 글을 조회한다.")
+    @Test
+    void findAllByMemberAndQuestion() {
+        // given
+        Member member = memberRepository.findById(1L).get();
+        Question question = questionRepository.findById(1L).get();
+
+        // when
+        List<Answer> answers = answerRepository.findAllByMemberAndQuestion(member, question);
+
+        // then
+        assertThat(answers).hasSize(2);
     }
 }

@@ -10,13 +10,13 @@ import woohaengsi.qnadiary.question.dto.QuestionReadResponse;
 import woohaengsi.qnadiary.question.repository.QuestionRepository;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final MemberRepository memberRepository;
 
-    @Transactional
     public QuestionReadResponse findBy(Long memberId) {
         Member findMember = findMemberBy(memberId);
         Question findQuestion = questionRepository.findById(findMember.getCurrentQuestionNumber())

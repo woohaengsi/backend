@@ -64,7 +64,6 @@ dependencies {
 	testImplementation 'io.rest-assured:rest-assured'
 
 	// db
-	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// Swagger
